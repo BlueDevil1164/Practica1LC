@@ -1,3 +1,3 @@
 # Practica1LC
 
-En cada archivo se encuentra cada ejercicio de la practica 1 dependiendo su numero
+En el archivo practica1 se encuentra cada ejercicio de practica.
