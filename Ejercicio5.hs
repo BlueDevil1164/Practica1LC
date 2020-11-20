@@ -1,4 +1,7 @@
-Definir la función
+import Data.List
+import Test.HUnit
+import Verificacion
+--Definir la función
 -- eliminaEquivalencias :: Prop -> Prop
 -- tal que (eliminaEquivalencias f) es una fórmula equivalente a f sin
 -- signos de equivalencia. Por ejemplo,
