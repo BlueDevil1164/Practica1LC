@@ -1,3 +1,4 @@
+import SintaxisSemantica
 import Data.List
 import Test.HUnit
 import Verificacion
@@ -11,16 +12,10 @@ import Verificacion
 -- ==> (((p --> q) /\ (q --> p)) /\ ((q --> r) /\ (r --> q)))
 -- ---------------------------------------------------------------------
 eliminaEquivalencias :: Prop -> Prop
-eliminaEquivalencias (Atom f) =
-(Atom f)
-eliminaEquivalencias (Neg f) =
-Neg (eliminaEquivalencias f)
-eliminaEquivalencias (Conj f g) =
-Conj (eliminaEquivalencias f) (eliminaEquivalencias g)
-eliminaEquivalencias (Disj f g) =
-Disj (eliminaEquivalencias f) (eliminaEquivalencias g)
-eliminaEquivalencias (Impl f g) =
-Impl (eliminaEquivalencias f) (eliminaEquivalencias g)
-eliminaEquivalencias (Equi f g) =
-Conj (Impl (eliminaEquivalencias f) (eliminaEquivalencias g))
+eliminaEquivalencias (Atom f) = (Atom f)
+eliminaEquivalencias (Neg f) = Neg (eliminaEquivalencias f)
+eliminaEquivalencias (Conj f g) = Conj (eliminaEquivalencias f) (eliminaEquivalencias g)
+eliminaEquivalencias (Disj f g) = Disj (eliminaEquivalencias f) (eliminaEquivalencias g)
+eliminaEquivalencias (Impl f g) = Impl (eliminaEquivalencias f) (eliminaEquivalencias g)
+eliminaEquivalencias (Equi f g) = Conj (Impl (eliminaEquivalencias f) (eliminaEquivalencias g))
 (Impl (eliminaEquivalencias g) (eliminaEquivalencias f))
