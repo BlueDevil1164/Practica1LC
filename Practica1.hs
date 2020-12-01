@@ -1,6 +1,6 @@
 {-
 - Lógica computacional 2021-1
-Noyola Nazario Alejandro
+Noyola Nazario Alejandro 314332961
 -}
 
 module LP where
