@@ -1,114 +1,161 @@
-import SintaxisSemantica
-import Data.List
-import Test.HUnit
-import Verificacion
+{-
+- Lógica computacional 2021-1
+Noyola Nazario Alejandro
+-}
 
---Variables (Ejercicio1)---------------------------------------------------------
---Un tipo de datos para variables:
+module LP where
+
+--Ejercicio 1
+
+x = "soq una cadena" --Variable como cadena
+y = 10               --Variable como entero
+n = fact 5           --Variable como evalucación recursiva
+
+--Ejercicio 2
+
+z = suma1 y          -- Definicion de valuaciones como funciones
+l1 =  [(p,q) | p <- [1,2,3], q <- [4,5]] -- Variable como Lista
+
+
+suma1 :: Int -> Int   
+suma1 p = p+1
+
+
+fact :: Int -> Int 
+fact 0 = 1 
+fact n = n * fact ( n - 1 ) 
+
+
+--------------------------------------------------------------------
 type Variable= String
---OTRAS opciones para definir Variable:
-type Variable2= Int
-data Variable3= X | V Variable3 deriving (Eq,Show)
-data Variable4= X0 | X1 | X2 | X3 | X4 | X5 | X6 | X7 | X8 | X9 deriving (Eq,Show) --Diez variables
+data PL = Bot | Top | Var Variable  | Imp PL PL 
+        | Dis PL PL | Con PL PL | Neg PL | Nand PL PL| Nor PL PL
 
 
--------------------------------------------------------------------------------------------------------
---Valuaciones (truth assignments)Ejercicio2 -----------------------------------
-type Valuacion= Variable -> Int
---Otras opciones para definir Valuacion:
-type Valuacion2= Variable -> Bool
-type Valuacion3= [(Variable,Bool)]
-type Valuacion4= [Variable]     -- Los elementos de sigma son las variables verdaderas
-type Valuacion5= S.Set Variable -- Los elementos de sigma son las variables verdaderas
-type Valuacion6 a= a -> Int
---
--- Ejemplos de valuaciones:
-sigma1 :: Valuacion
-sigma1 x= case x of
-            "x0"    -> 1
-            "x1"    -> 0
-            _       -> error $ "sigma1 no esta definida para la variable "++(show x)
---
-sigma2 :: Valuacion
-sigma2 _ = 0
---
-sigma3 :: Valuacion
-sigma3 x= case x of
-            "x0"    -> 0
-            _       -> 1
+instance Show PL where
+   show (Var x) = x
+   show (Neg p) = "¬"++ show p
+   show (Con p q)    = "(" ++ show p ++ " ^ " ++ show q ++ ")"    
+   show (Dis p q)    = "(" ++ show p ++ " V " ++ show q ++ ")"
+   show (Imp p q)    = "(" ++ show p ++ " -> " ++ show q ++ ")"
 
----------------------------------------------------------------------------------------------------------------
-Definir la función
--- subconjuntos :: [a] -> [[a]]
--- tal que (subconjuntos x) es la lista de los subconjuntos de x. Por
--- ejmplo,
--- subconjuntos "abc" ==> ["abc","ab","ac","a","bc","b","c",""] Ejercicio3
--- ------------------------------------------------------------------------------------------------------------
-subconjuntos :: [a] -> [[a]]
-subconjuntos [] = [[]]
-subconjuntos (x:xs) = [x:ys | ys <- xss] ++ xss
-where xss = subconjuntos xs
----------------------------------------------------------------------------------------------------------------
--- Ejercicio 4: Definir la función
--- modelosFórmula :: Prop -> [Interpretación]
--- tal que (modelosFórmula f) es la lista de todas las interpretaciones
--- de f que son modelo de F. Por ejemplo,
-type SímboloProposicional = String
 
-data Prop = Atom SímboloProposicional
-| Neg Prop
-| Conj Prop Prop
-| Disj Prop Prop
-| Impl Prop Prop
-| Equi Prop Prop
-deriving (Eq,Ord)
-instance Show Prop where
-show (Atom p) = p
-show (Neg p) = "no " ++ show p
-show (Conj p q) = "(" ++ show p ++ " /\\ " ++ show q ++ ")"
-show (Disj p q) = "(" ++ show p ++ " \\/ " ++ show q ++ ")"
-show (Impl p q) = "(" ++ show p ++ " --> " ++ show q ++ ")"
-show (Equi p q) = "(" ++ show p ++ " <--> " ++ show q ++ ")"
-----------------------------------------------------------------------------------------------------------------
-Definir la función(Ejercicio5)
--- eliminaImplicaciones :: Prop -> Prop
--- tal que (eliminaImplicaciones f) es una fórmula equivalente a f sin
--- signos de implicación. Por ejemplo,
--- eliminaImplicaciones (p --> q)
--- ==> (no p \/ q)
--- eliminaImplicaciones (eliminaEquivalencias (p <--> q))
--- ==> ((no p \/ q) /\ (no q \/ p))
--- Nota: Se supone que f no tiene signos de equivalencia.
--- ---------------------------------------------------------------------
-eliminaImplicaciones :: Prop -> Prop
-eliminaImplicaciones (Atom f) = (Atom f)
-eliminaImplicaciones (Neg f) = Neg (eliminaImplicaciones f)
-eliminaImplicaciones (Conj f g) = Conj (eliminaImplicaciones f) (eliminaImplicaciones g)
-eliminaImplicaciones (Disj f g) = Disj (eliminaImplicaciones f) (eliminaImplicaciones g)
-eliminaImplicaciones (Impl f g) = Disj (Neg (eliminaImplicaciones f)) (eliminaImplicaciones g)
------------------------------------------------------------------------------------------------------------------
---Definir la función Nand(Ejercicio6)
--- interiorizaNegación :: Prop -> Prop
--- tal que (interiorizaNegación f) es una fórmula equivalente a f donde
--- las negaciones se aplican sólo a fórmulas atómicas. Por ejemplo,
--- interiorizaNegación (no (p /\ q)) ==> (no p \/ no q)
 
-interiorizaNegación :: Prop -> Prop
-interiorizaNegación (Atom f) = (Atom f)
-interiorizaNegación (Conj f g) = Conj (interiorizaNegación f) (interiorizaNegación g)
------------------------------------------------------------------------------------------------------------------
+-- Ejercicio 3 
 
-Definir la función(Ejercicio7)
--- esModeloConjunto :: Interpretación -> [Prop] -> Bool
--- tal que (esModeloConjunto i s) se verifica si i es modelo de s. Por
--- ejemplo,
--- esModeloConjunto [p,r] [(p \/ q) /\ ((no q) \/ r), q --> r]
--- ==> True
--- esModeloConjunto [p,r] [(p \/ q) /\ ((no q) \/ r), r --> q]
--- ==> False
--- ---------------------------------------------------------------------
-esModeloConjunto :: Interpretación -> [Prop] -> Bool
-esModeloConjunto i s = and [esModeloFórmula i f | f <- s]
+vars :: PL -> [Variable]
+vars (Var p) = [p]
+vars (Imp p q) = (vars p) ++ (vars q)
+vars (Con p q) = (vars p) ++ (vars q) 
+vars (Dis p q) = (vars p) ++ (vars q)
+vars (Neg p) = vars p
+
+-- Ejercicio 4
+
+
+--4.1
+conjunciones :: PL -> Int
+conjunciones (Var p) = 0
+conjunciones (Imp p q) = (conjunciones p) + (conjunciones q)
+conjunciones (Con p q) = 1 + (conjunciones p) + (conjunciones q) 
+conjunciones (Dis p q) = (conjunciones p) + (conjunciones q)
+conjunciones (Neg p) = conjunciones p
+
+
+--Función aupiliar que cuenta las disqunciones de una fórmula
+disyunciones :: PL -> Int
+disyunciones (Var p) = 0
+disyunciones (Imp p q) = (disyunciones p) + (disyunciones q)
+disyunciones (Con p q) = (disyunciones p) + (disyunciones q) 
+disyunciones (Dis p q) = 1 + (disyunciones p) + (disyunciones q)
+disyunciones (Neg p) = disyunciones p
+--Función aupiliar que cuenta las implicacionees de una fórmula
+imps :: PL -> Int
+imps (Var p) = 0
+imps (Imp p q) = 1 + (imps p) + (imps q)
+imps (Con p q) = (imps p) + (imps q) 
+imps (Dis p q) = (imps p) + (imps q)
+imps (Neg p) = imps p
+--Función aupiliar que cuenta las negaciones de una fórmula
+negs :: PL -> Int
+negs (Var p) = 0
+negs (Imp p q) = (negs p) + (negs q)
+negs (Con p q) = (negs p) + (negs q) 
+negs (Dis p q) = (negs p) + (negs q)
+negs (Neg p) = 1 + negs p
+
+
+--Función que dependiendo un operador se cuenta el numero de apariciones 
+--en una fórmula
+ops :: PL -> String -> Int
+ops (Var p) _ = 0
+ops p "¬" = negs p
+ops p "^" = conjunciones p
+ops p "v" = disyunciones p
+ops p "->" = imps p
+
+
+-- Ejercicio 5
+
+quitaImp :: PL -> PL
+quitaImp (Var p) = Var p
+quitaImp (Imp p q) = Dis (Neg (quitaImp p)) (quitaImp q)
+quitaImp (Con p q) = Con (quitaImp p) (quitaImp q) 
+quitaImp (Dis p q) = Dis (quitaImp p) (quitaImp q)
+quitaImp (Neg p) = Neg (quitaImp p)
+
+quitaAnd :: PL -> PL
+quitaAnd (Var p) = Var p
+quitaAnd (Imp p q) = Imp (quitaAnd p) (quitaAnd q)
+quitaAnd (Con p q) = Neg (Dis(Neg(quitaAnd p)) (Neg(quitaAnd q))) 
+quitaAnd (Dis p q) = Dis (quitaAnd p) (quitaAnd q)
+quitaAnd (Neg p) = Neg (quitaAnd p)
+
+quitaOr :: PL -> PL
+quitaOr (Var p) = Var p
+quitaOr (Imp p q) = Imp (quitaOr p) (quitaOr q)
+quitaOr (Con p q) = Con (quitaOr p) (quitaOr q) 
+quitaOr (Dis p q) = Neg (Con (Neg (quitaOr p)) (Neg (quitaOr q)) )
+quitaOr (Neg p) = Neg (quitaOr p)
+
+-- Ejercicio 6
+
+lNand :: PL -> PL
+lNand (Var p) = Var p
+lNand (Imp p q) = Nand (lNand p) (Nand (lNand q) (lNand q))
+lNand (Con p q) = Nand (Nand (lNand p) (lNand q) ) (Nand (lNand p) (lNand q)) 
+lNand (Dis p q) = Nand (Nand (lNand p) (lNand p) ) (Nand (lNand q) (lNand q))
+lNand (Neg p) = Neg (lNand p)
+
+-- Ejercicio 7
+lNor :: PL -> PL
+lNor (Var p) = Var p
+lNor (Imp p q) = Nor (Nor (Nor (lNor p) (lNor p)) (lNor q)) (Nor (Nor (lNor p) (lNor p)) (lNor q))
+lNor (Con p q) = Nor (Nor (lNor p) (lNor p)) (Nor (lNor q) (lNor q))
+lNor (Dis p q) = Nor (Nor (lNor p) (lNor q)) (Nor (lNor q) (lNor q))
+lNor (Neg p) = Nor p p 
+
+
+-- Ejercicio 8
+
+satModPL :: [Variable] -> PL -> Bool -- ¿M |= phi?
+-- satModPL : ConjuntoPotencia(Var) -> PL -> Bool
+-- Implementa la semantica mediante modelos (subconjuntos de Var) de la PL
+satModPL m phi = case phi of -- Recursivamente sobre la estructura de phi:
+    -- Casos base:
+    Bot               -> False
+    Top               -> True
+    Var x             -> x `elem` m -- ¿x es elemento de phi?
+    -- Casos recursivos (coser y cantar):
+    Imp alpha beta    -> not(satModPL m alpha) || (satModPL m beta)
+    Dis alpha beta    -> (satModPL m alpha) || (satModPL m beta)
+    Con alpha beta    -> (satModPL m alpha) && (satModPL m beta)
+    Neg alpha         -> not (satModPL m alpha) 
+
+
+potencia :: [a] -> [[a]]
+potencia [] = [[]]
+potencia (x:xs) = map (x:) (potencia xs) ++ potencia xs
 
 
 
